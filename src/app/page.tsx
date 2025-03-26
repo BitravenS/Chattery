@@ -40,9 +40,7 @@ export default function Home() {
     lastMessage,
     messageHistory,
     sendMessage: sendWsMessage,
-  } = useWebSocket(
-    `ws://chattery-backend-production.up.railway.app:8080/api/chat/ws`
-  );
+  } = useWebSocket(process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:3000");
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 

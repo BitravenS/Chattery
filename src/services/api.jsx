@@ -1,6 +1,7 @@
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://chattery-backend-production.up.railway.app:8080";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+if (!API_URL) {
+  console.error("API_URL is not set");
+}
 
 export async function fetcher(url, options = {}) {
   try {
