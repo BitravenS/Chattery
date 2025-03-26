@@ -70,8 +70,6 @@ export const authService = {
   },
 
   getStatus: async () => {
-    return fetcher("/api/auth/status", {
-      method: "GET",
-    });
+    return fetcher("/api/auth/getstatus");
   },
 };
