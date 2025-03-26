@@ -1,4 +1,6 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8080";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://chattery-backend-production.up.railway.app:8080";
 
 export async function fetcher(url, options = {}) {
   try {
@@ -35,7 +37,9 @@ export async function fetcher(url, options = {}) {
     }
   } catch (e) {
     if (e.message === "Failed to fetch") {
-      alert("Unable to connect to the backend. Please check your internet connection.");
+      alert(
+        "Unable to connect to the backend. Please check your internet connection."
+      );
     }
     console.error("API error:", e);
     throw e;
