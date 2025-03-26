@@ -42,14 +42,14 @@ export default function Home() {
     sendMessage: sendWsMessage,
   } = useWebSocket(process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:3000");
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-
-  // ✅ Load initial messages from WebSocket history
+  // Load initial messages from WebSocket history
   useEffect(() => {
-    setMessages(messageHistory);
+    if (messageHistory.length > 0) {
+      setMessages(messageHistory);
+    }
   }, [messageHistory]);
 
-  // ✅ Handle new messages from WebSocket
+  // Handle new messages from WebSocket
   useEffect(() => {
     if (lastMessage) {
       setMessages((prevMessages) => [...prevMessages, lastMessage]);

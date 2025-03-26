@@ -4,6 +4,7 @@ export const authService = {
   login: async (provider) => {
     const data = await fetcher(`/api/auth/login?provider=${provider}`, {
       method: "POST",
+      credentials: "include",
     });
 
     if (data.redirect_url) {
