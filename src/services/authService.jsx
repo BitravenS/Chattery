@@ -1,5 +1,8 @@
 import { fetcher } from "./api";
-
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+if (!API_URL) {
+  console.error("API_URL is not set");
+}
 export const authService = {
   login: (provider) => {
     const width = 500;
