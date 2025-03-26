@@ -5,39 +5,45 @@ if (!API_URL) {
 
 export async function fetcher(url, options = {}) {
   try {
-    const defaultOptions = {
-      credentials: "include",
+    const response = await fetch(`${API_URL}${url}`, {
+      ...options,
+      credentials: "include", // Ensures cookies are sent
       headers: {
         "Content-Type": "application/json",
-        ...options.headers,
+        ...(options.headers || {}), // Merge headers safely
       },
-    };
-
-    const response = await fetch(`${API_URL}${url}`, {
-      ...defaultOptions,
-      ...options,
     });
 
-    // If not OK, throw error
     if (!response.ok) {
-      const error = new Error("API request failed");
+      const error = new Error(
+        `API request failed with status ${response.status}`
+      );
       error.status = response.status;
-      try {
-        error.info = await response.json();
-      } catch (e) {
-        error.info = "Could not parse error response";
+
+      // Try parsing JSON if possible
+      const contentType = response.headers.get("Content-Type");
+      if (contentType && contentType.includes("application/json")) {
+        try {
+          error.info = await response.json();
+        } catch (e) {
+          error.info = "Could not parse error response";
+        }
+      } else {
+        error.info = await response.text(); // Fallback for non-JSON errors
       }
+
       throw error;
     }
 
-    // Parse and return JSON response
-    try {
+    // Ensure JSON response parsing
+    const contentType = response.headers.get("Content-Type");
+    if (contentType && contentType.includes("application/json")) {
       return await response.json();
-    } catch (e) {
-      throw new Error("Failed to parse JSON response");
     }
+
+    return response.text(); // Fallback for non-JSON responses
   } catch (e) {
-    if (e.message === "Failed to fetch") {
+    if (e.message.includes("Failed to fetch")) {
       alert(
         "Unable to connect to the backend. Please check your internet connection."
       );

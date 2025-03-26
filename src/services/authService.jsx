@@ -10,7 +10,6 @@ export const authService = {
     const left = (window.innerWidth - width) / 2;
     const top = (window.innerHeight - height) / 2;
 
-    // Construct the URL directly
     const authUrl = `${API_URL}/api/auth/login?provider=${provider}`;
     const popup = window.open(
       authUrl,
@@ -22,21 +21,22 @@ export const authService = {
       throw new Error("Popup blocked! Please allow popups for this site.");
     }
 
-    // Periodically check if the popup was redirected to the main page
     const interval = setInterval(() => {
       try {
-        if (popup.location.origin === window.location.origin) {
-          if (popup.location.pathname === "/auth/callback") {
-            popup.close();
-            clearInterval(interval);
-            window.location.reload();
-          }
+        if (popup.closed) {
+          clearInterval(interval);
+          window.location.reload();
         }
-      } catch (error) {}
-      if (popup.closed) {
-        clearInterval(interval);
+
+        if (popup.location.href.includes("/auth/callback")) {
+          popup.close();
+          clearInterval(interval);
+          window.location.reload();
+        }
+      } catch (error) {
+        // Ignore cross-origin errors
       }
-    }, 100);
+    }, 500);
   },
   handleSaveChanges: async () => {
     try {
@@ -58,8 +58,13 @@ export const authService = {
   },
 
   handleCallback: async () => {
-    // This endpoint should verify the OAuth callback and return user data
-    return fetcher("/api/auth/google/callback");
+    try {
+      const response = await fetcher("/api/auth/getstatus");
+      return response;
+    } catch (error) {
+      console.error("OAuth callback error:", error);
+      return null;
+    }
   },
 
   logout: async () => {
