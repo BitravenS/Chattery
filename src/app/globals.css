@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Handjet:wght@100..900&family=Jua&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans+JP:wght@100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -54,8 +54,8 @@
   --popover-foreground: oklch(0.145 0 0);
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
+  --secondary: #fa3030;
+  --secondary-foreground: #ffeeee;
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.97 0 0);
@@ -123,5 +123,9 @@
 }
 
 * {
-  font-family: "Handjet", sans-serif;
+  font-family: "Inter", sans-serif;
+}
+
+.JP {
+  font-family: "Noto Sans JP", sans-serif;
 }

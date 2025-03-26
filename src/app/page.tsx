@@ -1,111 +1,277 @@
 "use client";
-import React from "react";
-import Link from "next/link";
+import React, { useEffect, useState } from "react";
+import BorderWrapper from "@/components/border";
+import { useAuth } from "@/app/context/AuthContext";
+import BG from "@/components/bg";
+import Hero from "@/components/hero";
+import { Send } from "lucide-react";
+import ChatList from "./chat/ChatList";
+import { useWebSocket } from "@/hooks/useWebSocket";
+import { Filter } from "bad-words";
 import {
-  Heart,
-  MessageCircle,
-  Star,
-  SkullIcon,
-  ArrowRight,
-  HandMetal,
-} from "lucide-react";
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function Home() {
+  const { user, login } = useAuth();
+  const [loggedin, setLoggedin] = useState(user != null);
+  const [username, setUsername] = useState(user?.username || ""); // Initialize with the current username
+  const [isHovered, setIsHovered] = useState(false);
+  const [isHoppedIn, setIsHoppedIn] = useState(false);
+  const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [messages, setMessages] = useState<any[]>([]);
+
+  const handleHopIn = () => {
+    setIsHoppedIn(true);
+  };
+  const {
+    lastMessage,
+    messageHistory,
+    sendMessage: sendWsMessage,
+  } = useWebSocket(`ws://127.0.0.1:8080/api/chat/ws`);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+  // ✅ Load initial messages from WebSocket history
+  useEffect(() => {
+    setMessages(messageHistory);
+  }, [messageHistory]);
+
+  // ✅ Handle new messages from WebSocket
+  useEffect(() => {
+    if (lastMessage) {
+      setMessages((prevMessages) => [...prevMessages, lastMessage]);
+    }
+  }, [lastMessage]);
+
+  // ✅ Send message via WebSocket
+  const filter = new Filter();
+
+  const handleSendMessage = async (text: string) => {
+    setIsSubmitting(true);
+
+    if (!text.trim()) return;
+
+    try {
+      text = filter.clean(text);
+
+      sendWsMessage({ text }); // ✅ Send message as JSON
+    } catch (error) {
+      console.error("Error sending message through WebSocket:", error);
+    } finally {
+      setIsSubmitting(false);
+      setMessage("");
+    }
+  };
+
+  useEffect(() => {
+    if (user != null) {
+      setLoggedin(true);
+      setUsername(user.username || "");
+    } else {
+      setLoggedin(false);
+      setUsername("");
+    }
+  }, [user]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-cyan-100 to-sky-100 relative overflow-hidden">
-      {[...Array(6)].map((_, i) => (
+    <BorderWrapper>
+      <BG fadeOut={isHoppedIn} />
+      <Hero fadeOut={isHoppedIn} />
+      <>
         <div
-          key={i}
-          className={`absolute animate-float opacity-50 ${
-            i % 2 === 0 ? "text-sky-300" : "text-cyan-300"
+          className={`transition-opacity duration-500 delay-300 z-1 ${
+            isHoppedIn ? "opacity-100" : "opacity-0"
           }`}
-          style={{
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-            animation: `float ${6 + i}s ease-in-out infinite`,
-            animationDelay: `${i * 0.5}s`,
-          }}
         >
-          <Heart className="w-8 h-8" fill="currentColor" />
-        </div>
-      ))}
-
-      <div className="container mx-auto px-4 py-12 relative">
-        <div className="max-w-3xl mx-auto text-center">
-          {/* Hero Section */}
-          <div className="mb-4 animate-bounce-slow">
-            <div className="inline-block bg-purple-400 rounded-full animate-bounce p-4 rotate-6 hover:rotate-12 transition-transform mb-6">
-              <MessageCircle className="w-12 h-12 text-white" />
-            </div>
-            <h1 className="text-7xl md:text-6xl font-bold text-violet-500 mb-4 flex items-center justify-center gap-3">
-              Chattery
-              <HandMetal
-                className="size-12 text-violet-400 inline animate-pulse"
-                fill="currentColor"
-              />
-            </h1>
-            <p
-              className="text-3xl text-purple-500 font-medium"
-              style={{ fontFamily: "Handjet" }}
+          {/* Make this div scrollable */}
+          <div className="relative h-[75vh] flex-grow z-1 ">
+            <div
+              style={{
+                maskImage:
+                  "linear-gradient(to top, transparent, black 5%, black 95%, transparent)",
+                WebkitMaskImage:
+                  "linear-gradient(to top, transparent, black 5%, black 95%, transparent)",
+                msOverflowStyle: "none",
+                scrollbarWidth: "none",
+              }}
+              className="flex flex-col flex-grow h-full scrollbar-none overflow-y-auto p-4 z-1"
             >
-              Make enemies & wipe smiles!
-            </p>
-            <p className="block text-4xl text-purple-500 font-medium my-4 animate-spin">
-              🖕
-            </p>
-          </div>
-
-          {/* Main Card */}
-          <div
-            className="bg-white/40 backdrop-blur-sm rounded-[3rem] p-8 md:p-12 shadow-xl border-2 border-white/50
-                         hover:transform hover:scale-[1.02] transition-all duration-300"
-          >
-            <div className="flex flex-col items-center gap-8">
-              <div className="text-2xl text-bold space-y-6">
-                <div className="flex items-center justify-center gap-4">
-                  <Star
-                    className="w-8 h-8 text-yellow-400"
-                    fill="currentColor"
-                  />
-                  <span className="text-2xl text-purple-600">Ugly UI</span>
-                </div>
-                <div className="flex items-center justify-center gap-4">
-                  <SkullIcon className="w-8 h-8 text-purple-400" />
-                  <span className="text-2xl text-purple-600">
-                    Shitty Effects
-                  </span>
-                </div>
-              </div>
-              <Link href="/chat">
-                <button
-                  className="bg-gradient-to-r from-pink-400 to-purple-400 text-white px-10 py-5 
-                               rounded-full font-bold text-3xl shadow-lg
-                               hover:scale-110 hover:shadow-xl transition-all duration-300
-                               flex items-center gap-3"
-                >
-                  Let's Fucking Go
-                  <ArrowRight className="size-10" />
-                </button>
-              </Link>
-
-              <div className="flex text-3xl items-center gap-8 mt-4 text-center">
-                <div>
-                  <div className="text-2xl font-bold text-pink-500">🔥</div>
-                  <div className="text-sky-500">Unlimited DOOM</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-pink-500">☠️</div>
-                  <div className="text-sky-500">Unending Nightmares</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-pink-500">😭</div>
-                  <div className="text-sky-500">Daily Agony</div>
-                </div>
-              </div>
+              <ChatList messages={messages} currentUserId={user?.id} />
             </div>
           </div>
+        </div>
+      </>
+      <div className="relative flex flex-col sm:pt-8 -mx-4 pt-14">
+        <div className="flex-grow"></div>
+        <div className=" relative inset-0 flex gap-4 justify-center items-end mb-4">
+          {loggedin ? (
+            <>
+              <div
+                className={`transition-all duration-500 ease-in-out ml-4 ${
+                  isHoppedIn ? "w-full" : "w-26 hover:w-32"
+                }`}
+              >
+                {isHoppedIn ? (
+                  <input
+                    type="text"
+                    value={message}
+                    onKeyDown={(e) => {
+                      if (
+                        e.key === "Enter" &&
+                        !isSubmitting &&
+                        message.trim()
+                      ) {
+                        handleSendMessage(message);
+                      }
+                    }}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Spread some love..."
+                    className="text-black text-xl bg-neutral-100/80 px-4 py-2 rounded-full border-2 border-zinc-800  w-full"
+                    disabled={isSubmitting}
+                  />
+                ) : (
+                  <button
+                    onClick={handleHopIn}
+                    className="btn text-black text-xl px-4 py-2 rounded-full bg-white hover:bg-zinc-300 hover:text-3xl transition-all duration-500 ease-in-out"
+                  >
+                    Hop In!
+                  </button>
+                )}
+              </div>
+              <div
+                className={`transition-all duration-500 ease-in-out mr-2 w-auto  `}
+              >
+                {isHoppedIn ? (
+                  <button
+                    onClick={() => handleSendMessage(message)}
+                    disabled={isSubmitting || !message.trim()}
+                    className="btn h-12 w-12 flex items-center border-zinc-800 border-2 justify-center rounded-full bg-white mr-4 hover:bg-sky-300 hover:w-18 transition-all duration-300 ease-in-out"
+                  >
+                    <Send className={isSubmitting ? "animate-spin" : ""} />
+                  </button>
+                ) : (
+                  <ProfileDialog
+                    username={username}
+                    setUsername={setUsername}
+                  />
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="group flex flex-col items-center">
+              <button
+                onClick={() => login("google")}
+                className="btn flex flex-row items-center overflow-hidden text-black text-xl px-4 py-2 rounded-full bg-white hover:bg-zinc-200 hover:text-3xl"
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+              >
+                <div
+                  className="whitespace-nowrap transition-all duration-300 ease-in-out"
+                  style={{
+                    width: isHovered ? "240px" : "50px",
+                    opacity: isHovered ? 1 : 0.8,
+                  }}
+                >
+                  {isHovered ? (
+                    <div className="flex flex-row">Login With Google</div>
+                  ) : (
+                    <div className="flex">
+                      <span>Login</span>
+                      <span className="ml-4">With Google</span>
+                    </div>
+                  )}
+                </div>
+              </button>
+            </div>
+          )}
         </div>
       </div>
-    </div>
+    </BorderWrapper>
+  );
+}
+
+function ProfileDialog({
+  username,
+  setUsername,
+}: {
+  username: string;
+  setUsername: React.Dispatch<React.SetStateAction<string>>;
+}) {
+  const { logout } = useAuth(); // Access the logout function from the AuthContext
+  const [tempUsername, setTempUsername] = useState(username); // Temporary username for editing
+
+  const handleSaveChanges = () => {
+    setUsername(tempUsername); // Update the username state
+    // Optionally, send the updated username to the backend here
+    console.log("Username updated to:", tempUsername);
+  };
+
+  const handleLogout = () => {
+    logout(); // Call the logout function
+    window.location.reload();
+    console.log("User logged out");
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        {/* Replace the outer button with a div */}
+        <div className="btn cursor-pointer text-white text-xl px-4 py-2 rounded-full bg-black hover:bg-zinc-800 hover:text-3xl whitespace-nowrap transition-all duration-300 ease-in-out">
+          {username} Profile
+        </div>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Edit profile</DialogTitle>
+          <DialogDescription>
+            Make changes to your profile here. Click save when you&apos;re done.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="username" className="text-right">
+              Username
+            </Label>
+            <Input
+              id="username"
+              value={tempUsername}
+              onChange={(e) => setTempUsername(e.target.value)} // Update tempUsername on input change
+              className="col-span-3"
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <DialogClose asChild>
+            <div className="flex justify-between gap-5">
+              <Button variant="secondary" onClick={handleLogout}>
+                Log Out
+              </Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  handleSaveChanges();
+                  document.body.click();
+                }}
+              >
+                Save changes
+              </Button>
+            </div>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
