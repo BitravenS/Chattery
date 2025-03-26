@@ -1,44 +1,39 @@
 import { fetcher } from "./api";
 
 export const authService = {
-  login: async (provider) => {
-    const data = await fetcher(`/api/auth/login?provider=${provider}`, {
-      method: "POST",
-      credentials: "include",
-    });
+  login: (provider) => {
+    const width = 500;
+    const height = 600;
+    const left = (window.innerWidth - width) / 2;
+    const top = (window.innerHeight - height) / 2;
 
-    if (data.redirect_url) {
-      const width = 500;
-      const height = 600;
-      const left = (window.innerWidth - width) / 2;
-      const top = (window.innerHeight - height) / 2;
+    // Construct the URL directly
+    const authUrl = `${API_URL}/api/auth/login?provider=${provider}`;
+    const popup = window.open(
+      authUrl,
+      "oauth-popup",
+      `width=${width},height=${height},top=${top},left=${left}`
+    );
 
-      const popup = window.open(
-        data.redirect_url,
-        "oauth-popup",
-        `width=${width},height=${height},top=${top},left=${left}`
-      );
-
-      if (!popup) {
-        throw new Error("Popup blocked! Please allow popups for this site.");
-      }
-
-      // Periodically check if the popup was redirected to the main page
-      const interval = setInterval(() => {
-        try {
-          if (popup.location.origin === window.location.origin) {
-            if (popup.location.pathname === "/auth/callback") {
-              popup.close();
-              clearInterval(interval);
-              window.location.reload();
-            }
-          }
-        } catch (error) {}
-        if (popup.closed) {
-          clearInterval(interval);
-        }
-      }, 100);
+    if (!popup) {
+      throw new Error("Popup blocked! Please allow popups for this site.");
     }
+
+    // Periodically check if the popup was redirected to the main page
+    const interval = setInterval(() => {
+      try {
+        if (popup.location.origin === window.location.origin) {
+          if (popup.location.pathname === "/auth/callback") {
+            popup.close();
+            clearInterval(interval);
+            window.location.reload();
+          }
+        }
+      } catch (error) {}
+      if (popup.closed) {
+        clearInterval(interval);
+      }
+    }, 100);
   },
   handleSaveChanges: async () => {
     try {
