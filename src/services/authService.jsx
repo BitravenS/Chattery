@@ -59,7 +59,7 @@ export const authService = {
 
   handleCallback: async () => {
     // This endpoint should verify the OAuth callback and return user data
-    return fetcher("/api/auth/callback");
+    return fetcher("/api/auth/google/callback");
   },
 
   logout: async () => {
