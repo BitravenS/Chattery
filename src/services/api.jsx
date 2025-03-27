@@ -43,9 +43,10 @@ export async function fetcher(url, options = {}) {
 
     return response.text(); // Fallback for non-JSON responses
   } catch (e) {
+    /*
     if (e.message.includes("Failed to fetch")) {
       alert("Unable to connect to the backend. This is the calling url" + url);
-    }
+    }*/
     console.error("API error:", e);
     throw e;
   }
