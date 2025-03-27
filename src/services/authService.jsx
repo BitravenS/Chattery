@@ -61,7 +61,7 @@ export const authService = {
 
   handleCallback: async () => {
     try {
-      const response = await fetcher(`${API_URL}/api/auth/getstatus`, {
+      const response = await fetcher(`/api/auth/getstatus`, {
         credentials: "include",
       });
       return response;
@@ -72,7 +72,7 @@ export const authService = {
   },
 
   logout: async () => {
-    return fetcher(`${API_URL}/api/auth/logout`, {
+    return fetcher(`/api/auth/logout`, {
       method: "POST",
       credentials: "include",
     });
@@ -80,7 +80,7 @@ export const authService = {
 
   getStatus: async () => {
     try {
-      const response = await fetcher(`${API_URL}/api/auth/getstatus`, {
+      const response = await fetcher(`/api/auth/getstatus`, {
         credentials: "include",
       });
       return response;
