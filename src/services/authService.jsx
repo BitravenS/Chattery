@@ -38,10 +38,10 @@ export const authService = {
       }
     }, 500);
   },
-  handleSaveChanges: async () => {
+  handleSaveChanges: async (tempUsername, saveUsername) => {
     try {
       console.log("handleSaveChanges");
-      await fetch(`${API_URL}/auth/update-username`, {
+      await fetch(`${API_URL}/api/auth/update-username`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -53,7 +53,7 @@ export const authService = {
           token: user.token,
         }),
       });
-      setUsername(tempUsername);
+      saveUsername(tempUsername);
     } catch (error) {
       console.error("Failed to update username:", error);
     }

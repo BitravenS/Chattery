@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { authService } from "@/services/authService";
 
 export default function Home() {
   const { user, login } = useAuth();
@@ -213,10 +214,13 @@ function ProfileDialog({
   const { logout } = useAuth(); // Access the logout function from the AuthContext
   const [tempUsername, setTempUsername] = useState(username); // Temporary username for editing
 
-  const handleSaveChanges = () => {
-    setUsername(tempUsername); // Update the username state
-    // Optionally, send the updated username to the backend here
-    console.log("Username updated to:", tempUsername);
+  const handleSaveChanges = async () => {
+    try {
+      console.log("handleSaveChanges");
+      await authService.handleSaveChanges(tempUsername, setUsername); // Call the updateUsername function
+    } catch (error) {
+      console.error("Failed to update username:", error);
+    }
   };
 
   const handleLogout = () => {
@@ -238,6 +242,8 @@ function ProfileDialog({
           <DialogTitle>Edit profile</DialogTitle>
           <DialogDescription>
             Make changes to your profile here. Click save when you&apos;re done.
+            PS: These buttons don&apos;t work in docker deployment for some
+            reason, just clear the cookies to logout.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">

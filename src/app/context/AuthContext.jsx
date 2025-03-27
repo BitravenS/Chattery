@@ -61,6 +61,14 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const SaveUsername = async (tempUsername) => {
+    try {
+      await authService.handleSaveChanges(tempUsername);
+    } catch (error) {
+      console.error("Failed to update username:", error);
+    }
+  };
+
   const logout = async () => {
     try {
       await authService.logout();
