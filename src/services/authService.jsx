@@ -40,7 +40,8 @@ export const authService = {
   },
   handleSaveChanges: async () => {
     try {
-      await fetch("/auth/update-username", {
+      console.log("handleSaveChanges");
+      await fetch(`${API_URL}/auth/update-username`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -60,7 +61,7 @@ export const authService = {
 
   handleCallback: async () => {
     try {
-      const response = await fetcher("/api/auth/getstatus", {
+      const response = await fetcher(`${API_URL}/api/auth/getstatus`, {
         credentials: "include",
       });
       return response;
@@ -71,13 +72,21 @@ export const authService = {
   },
 
   logout: async () => {
-    return fetcher("/api/auth/logout", {
+    return fetcher(`${API_URL}/api/auth/logout`, {
       method: "POST",
       credentials: "include",
     });
   },
 
   getStatus: async () => {
-    return fetcher("/api/auth/getstatus", { credentials: "include" });
+    try {
+      const response = await fetcher(`${API_URL}/api/auth/getstatus`, {
+        credentials: "include",
+      });
+      return response;
+    } catch (error) {
+      console.error("Get status error:", error);
+      return null;
+    }
   },
 };
