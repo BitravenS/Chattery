@@ -45,7 +45,7 @@ export async function fetcher(url, options = {}) {
   } catch (e) {
     if (e.message.includes("Failed to fetch")) {
       alert(
-        "Unable to connect to the backend. Please check your internet connection."
+        "Unable to connect to the backend. Please check your internet connection.", e
       );
     }
     console.error("API error:", e);
