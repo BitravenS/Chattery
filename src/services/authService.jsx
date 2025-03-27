@@ -20,7 +20,7 @@ export const authService = {
     if (!popup) {
       throw new Error("Popup blocked! Please allow popups for this site.");
     }
-
+    /*
     const interval = setInterval(() => {
       try {
         if (popup.closed) {
@@ -36,7 +36,7 @@ export const authService = {
       } catch (error) {
         // Ignore cross-origin errors
       }
-    }, 500);
+    }, 500);*/
   },
   handleSaveChanges: async () => {
     try {
