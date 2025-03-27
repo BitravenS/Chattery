@@ -42,6 +42,7 @@ export const authService = {
     try {
       await fetch("/auth/update-username", {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -59,7 +60,9 @@ export const authService = {
 
   handleCallback: async () => {
     try {
-      const response = await fetcher("/api/auth/getstatus");
+      const response = await fetcher("/api/auth/getstatus", {
+        credentials: "include",
+      });
       return response;
     } catch (error) {
       console.error("OAuth callback error:", error);
@@ -70,10 +73,11 @@ export const authService = {
   logout: async () => {
     return fetcher("/api/auth/logout", {
       method: "POST",
+      credentials: "include",
     });
   },
 
   getStatus: async () => {
-    return fetcher("/api/auth/getstatus");
+    return fetcher("/api/auth/getstatus", { credentials: "include" });
   },
 };
